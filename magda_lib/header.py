@@ -1,10 +1,13 @@
 """For the time being this has been copied directly from the magda
 repository eventually this should become the canonical version."""
 
-import datetime
+from datetime import datetime
 import os
 import re
+from string import Template
 from textwrap import wrap
+
+CASDATA = os.environ["CASDATA"]
 
 MAGDA_FFH_TEXTWIDTH = 72
 MAGDA_DATA_FILE_REGEX = (
@@ -13,9 +16,14 @@ MAGDA_DATA_FILE_REGEX = (
     r"(?P<coord>c|krtp|kso|ksm|kg|tiis|enis|iais|j3|jmxyz|gse|gsm|rtn|sc)"
     r"(?:_(?P<res>ssd|\d{1,2}[ms]))?"
 )
-MAGDA_HEADER_PATH_REGEX = (
-    r"y\d{2}\/\d{5}\/processed\/%s[.]${ext}" % MAGDA_DATA_FILE_REGEX
+
+MAGDA_PATH_REGEX_TEMPLATE = Template(
+    r"${casdata}/y\d{2}\/\d{5}\/processed\/%s[.]${ext}" % MAGDA_DATA_FILE_REGEX
 )
+MAGDA_HEADER_PATH_REGEX = MAGDA_PATH_REGEX_TEMPLATE.substitute(
+    casdata=CASDATA, ext="ffh"
+)
+
 MAGDA_TIME_FMT = "%Y %j %b %d %H:%M:%S"
 MAGDA_TIME_FMT_MS = MAGDA_TIME_FMT + ".%f"
 
@@ -58,5 +66,4 @@ def get_metadata_from_header_file(ffh):
     metadata["last_modified"] = datetime.utcfromtimestamp(most_recent_mtime).strftime(
         MAGDA_TIME_FMT_MS
     )
-
     return metadata

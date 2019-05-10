@@ -1,2 +1,4 @@
 *.pyc
 /huey.db
+.mypy_cache
+

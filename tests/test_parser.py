@@ -1,15 +1,16 @@
-from copy import deepcopy
 import json
 import os
+from copy import deepcopy
 from datetime import datetime
-from pytz import UTC
 from unittest import TestCase
 from unittest.mock import patch
 
-from magda_lib import (
-    get_metadata_from_header_file,
-    MAGDA_TIME_FMT_MS,
+from pytz import UTC
+
+from magda_tools import (
     MAGDA_PATH_REGEX_TEMPLATE,
+    MAGDA_TIME_FMT_MS,
+    get_metadata_from_header_file,
 )
 
 CASDATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/casdata")
@@ -19,8 +20,8 @@ MAGDA_HEADER_PATH_REGEX = MAGDA_PATH_REGEX_TEMPLATE.substitute(
 )
 
 
-@patch("magda_lib.header.CASDATA", CASDATA)
-@patch("magda_lib.header.MAGDA_HEADER_PATH_REGEX", MAGDA_HEADER_PATH_REGEX)
+@patch("magda_tools.header.CASDATA", CASDATA)
+@patch("magda_tools.header.MAGDA_HEADER_PATH_REGEX", MAGDA_HEADER_PATH_REGEX)
 class TestDataParser(TestCase):
     def setUp(self):
         self.ffh_rel_paths = [

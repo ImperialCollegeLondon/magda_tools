@@ -3,9 +3,12 @@ repository eventually this should become the canonical version."""
 
 import os
 import re
+from dataclasses import dataclass
 from datetime import datetime
 from string import Template
 from textwrap import wrap
+
+import numpy as np
 
 CASDATA = os.environ["CASDATA"]
 
@@ -26,6 +29,8 @@ MAGDA_HEADER_PATH_REGEX = MAGDA_PATH_REGEX_TEMPLATE.substitute(
 
 MAGDA_TIME_FMT = "%Y %j %b %d %H:%M:%S"
 MAGDA_TIME_FMT_MS = MAGDA_TIME_FMT + ".%f"
+
+MAGDA_HEADER_COLUMN_DEFINITION_WIDTHS = 4, 14, 24, 49, 54
 
 
 def get_metadata_from_header_file(ffh):
@@ -59,6 +64,8 @@ def get_metadata_from_header_file(ffh):
             metadata["start"] = l.split("=")[1].strip(" \0")
         if l.startswith("LAST TIME"):
             metadata["end"] = l.split("=")[1].strip(" \0")
+        if l.startswith("NROWS"):
+            metadata["n_rows"] = int(l.split()[2])
 
     # Set last_modified date based on mtime from filesystem
     ffd = os.path.splitext(ffh)[0] + ".ffd"
@@ -67,3 +74,39 @@ def get_metadata_from_header_file(ffh):
         MAGDA_TIME_FMT_MS
     )
     return metadata
+
+
+def get_column_info_from_header_file(ffh):
+    """Return dict containing metadata from header file, ``ffh``.
+    """
+    with open(ffh, "r") as f:
+        s = f.read()
+    lines = wrap(
+        s, MAGDA_FFH_TEXTWIDTH
+    )  # .ffh contains no new lines so needs to be wrapped
+
+    cols_line = [line for line in lines if line.startswith("NCOLS")][0]
+    ncols = int(cols_line.split()[2])
+    start_line = [i + 1 for i, line in enumerate(lines) if line.startswith("# NAME")][0]
+
+    columns = []
+    for line in lines[start_line : start_line + ncols]:
+        vals = _split_line(line, *MAGDA_HEADER_COLUMN_DEFINITION_WIDTHS)
+        args = [int(vals[0]) - 1] + vals[1:-1]
+        columns.append(Column(*args))
+    return columns
+
+
+def _split_line(line, *args):
+    args = (None,) + args + (None,)
+    return [line[start:end].strip() for start, end in zip(args, args[1:])]
+
+
+@dataclass
+class Column:
+    index: int
+    name: str
+    units: str
+    source: str
+    type_: str
+    data: np.array = np.array([])

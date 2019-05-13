@@ -1,3 +1,4 @@
+from .data_file import DataFile
 from .header import (
     MAGDA_PATH_REGEX_TEMPLATE,
     MAGDA_TIME_FMT,

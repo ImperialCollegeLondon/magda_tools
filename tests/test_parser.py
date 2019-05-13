@@ -10,6 +10,7 @@ from pytz import UTC
 from magda_tools import (
     MAGDA_PATH_REGEX_TEMPLATE,
     MAGDA_TIME_FMT_MS,
+    DataFile,
     get_metadata_from_header_file,
 )
 
@@ -72,8 +73,36 @@ class TestDataParser(TestCase):
         metadata = get_metadata_from_header_file(ffh)
         metadata.pop("calibrated")
         metadata.pop("end")
+        metadata.pop("n_rows")
         for k, v in metadata.items():
             if isinstance(v, str):
                 metadata[k] = v.lower()
 
         self.assertDictEqual(metadata, target_metadata)
+
+    def test_datafile(self):
+        ffd = self.ffh_rel_ffd_exists.replace(".ffh", ".ffd")
+        ffd = os.path.join(CASDATA, ffd)
+        datafile = DataFile(ffd)
+        target_metadata = self.target_metadata[self.ffh_rel_ffd_exists]
+        target_metadata.pop("has_ffd")
+        target_metadata.pop("name")
+        target_metadata.pop("size")
+        for k, v in target_metadata.items():
+            if isinstance(v, str):
+                target_metadata[k] = v.lower()
+
+        # metadata items should be set as datafile attributes
+        for k, v in target_metadata.items():
+            attr = getattr(datafile, k)
+            if isinstance(attr, str):
+                attr = attr.lower()
+            self.assertEqual(attr, v)
+
+        # check the right amount of data has been pulled out
+        self.assertEqual(datafile.n_cols, 8)
+
+        for c in datafile.columns:
+            self.assertEqual(len(c.data), datafile.n_rows)
+
+        self.assertEqual(datafile["TIME_TAI"], datafile.columns[0])

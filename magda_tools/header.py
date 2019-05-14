@@ -46,6 +46,7 @@ def get_metadata_from_header_file(ffh):
 
     metadata["calibrated"] = "calibrated"  # Assume all data calibrated
 
+    print(MAGDA_HEADER_PATH_REGEX)
     # telemetry, coord. system, resolution, and sensor available from path
     path_metadata = re.match(MAGDA_HEADER_PATH_REGEX, ffh).groupdict()
 

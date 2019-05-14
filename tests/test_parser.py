@@ -106,3 +106,4 @@ class TestDataParser(TestCase):
             self.assertEqual(len(c.data), datafile.n_rows)
 
         self.assertEqual(datafile["TIME_TAI"], datafile.columns[0])
+        self.assertEqual(datafile.timebase, 946727968000)

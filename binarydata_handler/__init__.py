@@ -5,6 +5,8 @@ import subprocess
 import sys
 from string import Template
 
+from astropy.time import Time
+
 BDDIR = os.path.dirname(os.path.abspath(__file__))
 HEADER_COMMAND_TEMPLATE = Template(f"java -jar {BDDIR}/HeaderFileParser.jar $ffd_path")
 
@@ -32,5 +34,7 @@ def bd_header(dataset):
     command = HEADER_COMMAND_TEMPLATE.substitute({"ffd_path": dataset})
     stdout = command_executor(command)
     metadata = dict(s.split(" = ") for s in stdout.split("\n"))
-    metadata["timebase"] = int(metadata["timebase"])
+    metadata["timebase"] = Time(
+        int(metadata["timebase"]) / 1000, format="unix", scale="tai"
+    )  # astropy time object for convenience
     return metadata

@@ -64,6 +64,9 @@ class TestDataParser(TestCase):
         target_metadata.pop("has_ffd")
         target_metadata.pop("name")
         target_metadata.pop("size")
+        target_metadata["start"] = datetime.strptime(
+            target_metadata["start"], MAGDA_TIME_FMT_MS
+        )
         for k, v in target_metadata.items():
             if isinstance(v, str):
                 target_metadata[k] = v.lower()
@@ -88,6 +91,9 @@ class TestDataParser(TestCase):
         target_metadata.pop("has_ffd")
         target_metadata.pop("name")
         target_metadata.pop("size")
+        target_metadata["start"] = datetime.strptime(
+            target_metadata["start"], MAGDA_TIME_FMT_MS
+        )
         for k, v in target_metadata.items():
             if isinstance(v, str):
                 target_metadata[k] = v.lower()
@@ -106,4 +112,9 @@ class TestDataParser(TestCase):
             self.assertEqual(len(c.data), datafile.n_rows)
 
         self.assertEqual(datafile["TIME_TAI"], datafile.columns[0])
-        self.assertEqual(datafile.timebase, 946727968000)
+        # should add below value to json metadata file
+        self.assertAlmostEqual(datafile.timebase.unix, 946727968.0, places=5)
+
+        self.assertLessEqual(datafile.start, datafile["TIME_TAI"].data[0])
+        # # Should the below need to pass as well?
+        # self.assertLessEqual(data_end + datafile.timebase, datafile.end)

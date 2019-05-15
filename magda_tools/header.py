@@ -46,7 +46,6 @@ def get_metadata_from_header_file(ffh):
 
     metadata["calibrated"] = "calibrated"  # Assume all data calibrated
 
-    print(MAGDA_HEADER_PATH_REGEX)
     # telemetry, coord. system, resolution, and sensor available from path
     path_metadata = re.match(MAGDA_HEADER_PATH_REGEX, ffh).groupdict()
 
@@ -62,9 +61,13 @@ def get_metadata_from_header_file(ffh):
     # Extract start and end times from header file
     for l in lines:
         if l.startswith("FIRST TIME"):
-            metadata["start"] = l.split("=")[1].strip(" \0")
+            metadata["start"] = datetime.strptime(
+                l.split("=")[1].strip(" \0"), MAGDA_TIME_FMT_MS
+            )
         if l.startswith("LAST TIME"):
-            metadata["end"] = l.split("=")[1].strip(" \0")
+            metadata["end"] = datetime.strptime(
+                l.split("=")[1].strip(" \0"), MAGDA_TIME_FMT_MS
+            )
         if l.startswith("NROWS"):
             metadata["n_rows"] = int(l.split()[2])
 

@@ -2,6 +2,7 @@ import os
 import struct
 
 import numpy as np
+from astropy.time import TimeDelta
 
 from binarydata_handler import bd_header
 
@@ -38,8 +39,9 @@ class DataFile(object):
         for c in self.columns:
             c.data = data[c.index :: self.n_cols]
 
-        self["TIME_TAI"].data = 1000 * (self["TIME_TAI"].data) + self.timebase
-        # breakpoint()
+        self["TIME_TAI"].data = (
+            TimeDelta(self["TIME_TAI"].data, format="sec", scale="tai") + self.timebase
+        )
 
     @property
     def n_cols(self):

@@ -6,42 +6,49 @@ from astropy.time import TimeDelta
 
 from binarydata_handler import bd_header
 
-from .header import get_column_info_from_header_file, get_metadata_from_header_file
-
-MAGDA_TYPE_CONVERTER = {"T": "d", "R": "f", "I": "i"}
-
-# To do:
-# Check endianness is correct
-
 
 class DataFile(object):
-    def __init__(self, file_path):
-        self.file_path: str = file_path
-        self.header_file_path = os.path.splitext(file_path)[0] + ".ffh"
+    def __init__(self, file_path, header_path=None):
+        """Parse a MAGDA flatfile at ``file_path``. If ``header_path`` is not
+        provided it is assumed that there is a .ffh file colocated
+        with the data file.
 
+        """
+        self.file_path: str = file_path
+        self.header_path = (
+            header_path
+            if header_path is not None
+            else os.path.splitext(file_path)[0] + ".ffh"
+        )
         # get information from header file
-        metadata = get_metadata_from_header_file(self.header_file_path)
+        metadata = self.parse_header(self.header_path)
         for k, v in metadata.items():
             setattr(self, k, v)
 
-        self.columns = get_column_info_from_header_file(self.header_file_path)
-
-        # get more complex metadata by parsing via original
-        # javascript implementation
-        for k, v in bd_header(self.header_file_path).items():
-            setattr(self, k, v)
-
         # read in actual data
-        fmt = "".join([MAGDA_TYPE_CONVERTER[c.type_] for c in self.columns])
+        fmt = "".join([c.type_ for c in self.columns])
         with open(self.file_path, "rb") as f:
-            # need to be super sure that this is the correct endian!!!
-            data = np.array(struct.unpack(">" + (fmt * self.n_rows), f.read()))
+            b = f.read()
+            # ">" denotes the endian or byte significance order of the data
+            data = np.array(struct.unpack(">" + (fmt * self.n_rows), b))
         for c in self.columns:
             c.data = data[c.index :: self.n_cols]
 
-        self["TIME_TAI"].data = (
-            TimeDelta(self["TIME_TAI"].data, format="sec", scale="tai") + self.timebase
+        # convert times into objects and rename column for consistency
+        # across different header files
+        time_column = self.columns[0]
+        time_column.data = (
+            TimeDelta(time_column.data, format="sec", scale="tai") + self.timebase
         )
+        time_column.name = "TIME"
+
+    @staticmethod
+    def parse_header(path):
+        """Return a dictionary of metadata items from the header file at
+        ``path`` describing the contents of a datafile.
+
+        """
+        return bd_header(path)
 
     @property
     def n_cols(self):

@@ -8,7 +8,9 @@
     "sensor": "FGM",
     "coord": "RTN",
     "size":  51372,
-    "last_modified": "2017 133 May 13 19:35:46"
+    "last_modified": "2017 133 May 13 19:35:46",
+    "n_rows": 1427,
+    "column_names": ["TIME_TAI", "BX_RTN", "BY_RTN", "BZ_RTN", "BTOTAL", "X_ECLIP", "Y_ECLIP", "Z_ECLIP"]
   },
   "y17/17051/processed/17051_mrdcd_hkfgmn_rtn_60m.ffh": {
     "has_ffd": true,

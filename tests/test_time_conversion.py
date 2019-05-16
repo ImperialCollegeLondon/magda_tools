@@ -9,7 +9,7 @@ class TestTime(TestCase):
     def compare_times(self, utc, diff):
         """Take a utc localised datetime object, convert to TAI and
         check that the two datetime objects are offset by the correct
-        number of seconds (depending on the date) specified by diff"""
+        number of seconds (depending on the date) specified by ``diff``"""
         tai = astropy.time.Time(utc.timestamp(), scale="tai", format="unix")
         self.assertEqual(utc.second + diff, tai.datetime.second)
 

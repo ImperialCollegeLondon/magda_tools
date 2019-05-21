@@ -3,7 +3,6 @@ import os
 from copy import deepcopy
 from datetime import datetime
 from unittest import TestCase
-from unittest.mock import patch
 
 from magda_tools import MAGDA_TIME_FMT_MS, DataFile
 
@@ -12,7 +11,6 @@ CASDATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/casdata
 
 # once finalised version of the data for public release is available
 # get a more broad range of header files to test against
-@patch("magda_tools.header.CASDATA", CASDATA)
 class TestDataParser(TestCase):
     def setUp(self):
         self.ffh_rel_paths = [
@@ -42,7 +40,7 @@ class TestDataParser(TestCase):
             target_metadata["start"], MAGDA_TIME_FMT_MS
         )
         target_metadata.pop("last_modified")
-        target_column_names = target_metadata.pop("column_names")
+        target_column_data = target_metadata.pop("columns")
         for k, v in target_metadata.items():
             if isinstance(v, str):
                 target_metadata[k] = v.lower()
@@ -58,8 +56,9 @@ class TestDataParser(TestCase):
                 metadata[k] = v.lower()
 
         self.assertDictEqual(metadata, target_metadata)
-        for col, target_name in zip(columns, target_column_names):
-            self.assertEqual(col.name, target_name)
+        for attr, values in target_column_data.items():
+            for col, target_val in zip(columns, values):
+                self.assertEqual(getattr(col, attr), target_val)
 
     def test_datafile(self):
         ffd = self.ffh_rel_ffd_exists.replace(".ffh", ".ffd")
@@ -71,7 +70,7 @@ class TestDataParser(TestCase):
         target_metadata.pop("name")
         target_metadata.pop("size")
         target_metadata.pop("last_modified")
-        target_metadata.pop("column_names")
+        target_metadata.pop("columns")
         target_metadata["start"] = datetime.strptime(
             target_metadata["start"], MAGDA_TIME_FMT_MS
         )

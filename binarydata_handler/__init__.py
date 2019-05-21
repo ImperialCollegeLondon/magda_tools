@@ -89,7 +89,7 @@ def bd_header(dataset):
 class Column:
     index: int
     name: str
-    units: str
     source: str
+    units: str
     type_: str
     data: np.array = np.array([])

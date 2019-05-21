@@ -10,7 +10,7 @@
     "size":  51372,
     "last_modified": "2017 133 May 13 19:35:46",
     "n_rows": 1427,
-    "column_names": ["TIME_TAI", "BX_RTN", "BY_RTN", "BZ_RTN", "BTOTAL", "X_ECLIP", "Y_ECLIP", "Z_ECLIP"]
+    "columns": {"name": ["TIME_TAI", "BX_RTN", "BY_RTN", "BZ_RTN", "BTOTAL", "X_ECLIP", "Y_ECLIP", "Z_ECLIP"], "units": ["SEC", "nT", "nT", "nT", "nT", "km", "km", "km"], "source": ["CA_HK_RG_FGM", "CA_HK_RG_FGM", "CA_HK_RG_FGM", "CA_HK_RG_FGM", "CA_HK_RG_FGM", "Spice SPK", "Spice SPK", "Spice SPK"], "type_": ["d", "f", "f", "f", "f", "f", "f", "f"]}
   },
   "y17/17051/processed/17051_mrdcd_hkfgmn_rtn_60m.ffh": {
     "has_ffd": true,

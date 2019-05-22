@@ -27,10 +27,28 @@ class DataFile(object):
 
         # read in actual data
         fmt = "".join([c.type_ for c in self.columns])
+        row_size = struct.calcsize(fmt)
         with open(self.file_path, "rb") as f:
             b = f.read()
-            # ">" denotes the endian or byte significance order of the data
-            data = np.array(struct.unpack(">" + (fmt * self.n_rows), b))
+
+        # some data files contain fewer lines than their
+        # headers claim so check the actualy size of the bytes
+        # object we get
+        actual_n_rows = len(b) // row_size
+        if len(b) % row_size:
+            raise IOError(
+                "Data file does not contain an integer number of rows according"
+                " to the expected row length"
+            )
+        if actual_n_rows != self.n_rows:
+            print(
+                f"Warning: Datafile {file_path} contains a different number "
+                "of rows than indicated in its header file"
+            )
+            self.n_rows = actual_n_rows
+        # breakpoint()
+        # ">" denotes the endian or byte significance order of the data
+        data = np.array(struct.unpack(">" + (fmt * self.n_rows), b))
         for c in self.columns:
             c.data = data[c.index :: self.n_cols]
 

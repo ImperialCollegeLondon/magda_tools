@@ -4,7 +4,7 @@ import struct
 import numpy as np
 from astropy.time import TimeDelta
 
-from binarydata_handler import bd_header
+from .header_handler import bd_header
 
 
 class DataFile(object):

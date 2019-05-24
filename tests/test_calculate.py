@@ -43,7 +43,7 @@ class TestCalculations(TestCase):
         """Test conversion of time and positional coordinates into
         saturn local time."""
 
-        # These test values were generated from the SLTChannel java
+        # These test values were generated from the LatitudeChannel java
         # implementation applied to the first 5 rows of the datafile
         # 17051_mrdcd_sdfgmc_ksm_1m.ffd
         target_values = [

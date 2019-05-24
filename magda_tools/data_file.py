@@ -14,7 +14,7 @@ class DataFile(object):
         with the data file.
 
         """
-        self.file_path: str = file_path
+        self.file_path = file_path
         self.header_path = (
             header_path
             if header_path is not None

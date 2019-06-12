@@ -60,11 +60,16 @@ class DataFile(object):
         )
         time_column.name = "TIME"
 
+        if self.coord == "C":
+            # decode raw sensor status data into a status value indicating
+            # the sensitivity range in which the sensor is operating
+            sensor_status = self[f"{self.sensor}Status"]
+            sensor_status.data = self.decode_sensor_status(sensor_status.data)
+
     @staticmethod
     def parse_header(path):
         """Return a dictionary of metadata items from the header file at
         ``path`` describing the contents of a datafile.
-
         """
         return bd_header(path)
 
@@ -77,3 +82,11 @@ class DataFile(object):
             return [c for c in self.columns if c.name == val][0]
         except IndexError:
             raise ValueError(f"No column named {val} in datafile")
+
+    @staticmethod
+    def decode_sensor_status(status):
+        """Decode raw sensor status information into a status code. ``status``
+        can be a number of sequence of numbers.
+        """
+        status = np.array(status)
+        return np.right_shift(np.bitwise_and(status.astype(int), 0xC0000000), 30)

@@ -95,3 +95,34 @@ class TestDataParser(TestCase):
         self.assertLessEqual(datafile.start, datafile["TIME"].data[0])
         # # Should the below need to pass as well?
         # self.assertLessEqual(data_end + datafile.timebase, datafile.end)
+
+    def test_decode_sensor_status(self):
+        """Test the bit shift operations used to decode sensor data"""
+
+        # raw and target status data were derived by applying the reference
+        # implementation provided by SensorRangeChannel.decode (from the
+        # original Magda Java based system) to 17002_mrdcd_sdfgmc_c.ffd.
+        # The below lists contain all unique pairings between raw sensor
+        # status data and decoded status values
+        raw_data = [
+            -1879046909,
+            -1879046653,
+            -1845492477,
+            268436995,
+            301991427,
+            1073742851,
+            1073743363,
+            1107297283,
+            1107297795,
+            1342178307,
+            1342178563,
+            1342178819,
+            1358956035,
+            1375732739,
+            1375733251,
+        ]
+        target_status_data = [2, 2, 2, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+
+        status_data = DataFile.decode_sensor_status(raw_data)
+        for s, t in zip(status_data, target_status_data):
+            self.assertEqual(s, t)

@@ -82,6 +82,11 @@ def bd_header(dataset):
         elif label == "n_rows":
             metadata[label] = int(value)
 
+    # The C coordinate system is a bit different and should never
+    # contain a BTotal column although this is added by default
+    # by the JavaHeaderParser
+    if metadata["coord"] == "C":
+        metadata["columns"] = metadata["columns"][:-1]
     return metadata
 
 

@@ -10,7 +10,7 @@ setup(
     author_email="",
     packages=["magda_tools", "magda_tools.header_handler"],
     python_requires=">=3.6",
-    install_requires=["astropy", "numpy", "pytz"],
+    install_requires=["astropy", "numpy", "pytz", "sympy"],
     project_urls={"Source": "https://github.com/ImperialCollege/magda_tools"},
     package_data={"magda_tools.header_handler": ["HeaderFileParser.jar"]},
 )

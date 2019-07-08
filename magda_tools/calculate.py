@@ -9,8 +9,8 @@ SLT_K = 0.0
 
 SECS_PER_DAY = 86400
 
-# Radius value taken from the 2006 SPICE PCK kernel file
-SATURN_RADIUS_KM = 60330.0
+# standard value for Saturn equitorial radius
+SATURN_RADIUS_KM = 60268.0
 
 
 def saturn_local_time(time, x_ksm, y_ksm, z_ksm):

@@ -57,7 +57,7 @@ def bd_header(dataset):
         label, value = line.split("=")
         if label == "timebase":
             metadata[label] = Time(
-                int(value) / 1000, format="unix", scale="utc"
+                int(value) / 1000, format="unix", scale="tai"
             )  # astropy time object for convenience
         elif label.startswith("column"):
             vals = value.split(",")

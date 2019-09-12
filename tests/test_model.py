@@ -1,5 +1,6 @@
 import os
 from unittest import TestCase
+from unittest.mock import patch
 
 import numpy as np
 
@@ -8,6 +9,9 @@ from magda_tools import BFieldModel, DataFile
 CASDATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/casdata")
 
 
+# update value of SATURN_RADIUS_KM here as we are testing against a
+# reference model that used a different value
+@patch("magda_tools.model.SATURN_RADIUS_KM", 60330.0)
 class TestModel(TestCase):
     @classmethod
     def setUpClass(self):

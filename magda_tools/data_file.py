@@ -46,7 +46,7 @@ class DataFile(object):
                 "of rows than indicated in its header file"
             )
             self.n_rows = actual_n_rows
-        # breakpoint()
+
         # ">" denotes the endian or byte significance order of the data
         data = np.array(struct.unpack(">" + (fmt * self.n_rows), b))
         for c in self.columns:

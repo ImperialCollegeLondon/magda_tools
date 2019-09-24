@@ -79,8 +79,8 @@ class TestDataParser(TestCase):
         # should add below value to json metadata file
         self.assertAlmostEqual(datafile.timebase.unix, 946727968.0, places=5)
 
-        self.assertEqual(datafile.start, datafile["TIME"].data[0].utc.datetime)
-        self.assertEqual(datafile["TIME"].data[-1].utc.datetime, datafile.end)
+        self.assertEqual(datafile.start, datafile["TIME"].data[0].datetime)
+        self.assertEqual(datafile["TIME"].data[-1].datetime, datafile.end)
 
     def test_decode_sensor_status(self):
         """Test the bit shift operations used to decode sensor data"""

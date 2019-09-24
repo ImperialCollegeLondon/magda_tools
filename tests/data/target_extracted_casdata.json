@@ -1,37 +1,12 @@
 {
-  "y17/17051/processed/17051_mrdcd_hkfgmn_rtn_1m.ffh": {
-    "has_ffd": true,
-    "name": "17051_mrdcd_hkfgmn_rtn_1m",
-    "start": "2017 051 Feb 20 00:01:30.000",
+    "name": "08100_mrdcd_hkfgmn_kg_1m",
+    "start": "2008 100 APR  9 00:00:30.000",
     "telem": "HK",
     "res": "1m",
     "sensor": "FGM",
-    "coord": "RTN",
-    "size":  51372,
-    "last_modified": "2017 133 May 13 19:35:46",
-    "n_rows": 1427,
-    "columns": {"name": ["TIME_TAI", "BX_RTN", "BY_RTN", "BZ_RTN", "BTOTAL", "X_ECLIP", "Y_ECLIP", "Z_ECLIP"], "units": ["SEC", "nT", "nT", "nT", "nT", "km", "km", "km"], "source": ["CA_HK_RG_FGM", "CA_HK_RG_FGM", "CA_HK_RG_FGM", "CA_HK_RG_FGM", "CA_HK_RG_FGM", "Spice SPK", "Spice SPK", "Spice SPK"], "type_": ["d", "f", "f", "f", "f", "f", "f", "f"]}
-  },
-  "y17/17051/processed/17051_mrdcd_hkfgmn_rtn_60m.ffh": {
-    "has_ffd": true,
-    "name": "17051_mrdcd_hkfgmn_rtn_60m",
-    "start": "2017 051 Feb 20 00:30:00.000",
-    "telem": "HK",
-    "res": "60m",
-    "sensor": "FGM",
-    "coord": "RTN",
-    "size": 864,
-    "last_modified": "2017 133 May 13 19:42:18"
-  },
-  "y17/17051/processed/17051_mrdcd_sdfgmc_ksm_1m.ffh": {
-    "has_ffd": false,
-    "name": "17051_mrdcd_sdfgmc_ksm_1m",
-    "start": "2017 051 Feb 20 00:00:30.000",
-    "telem": "SD",
-    "res": "1m",
-    "sensor": "FGM",
-    "coord": "KSM",
-    "size": null,
-    "last_modified": "2017 133 May 13 19:38:35"
-  }
+    "coord": "KG",
+    "size":  50688,
+    "last_modified": "2008 101 APR 10 00:00:30.000",
+    "n_rows": 1426,
+    "columns": {"name": ["TIME_TAI", "BX_KG", "BY_KG", "BZ_KG", "BTOTAL", "X_KG", "Y_KG", "Z_KG"], "units": ["SEC", "nT", "nT", "nT", "nT", "km", "km", "km"], "source": ["CA_HK_RG_FGM", "CA_HK_RG_FGM", "CA_HK_RG_FGM", "CA_HK_RG_FGM", "CA_HK_RG_FGM", "Spice SPK", "Spice SPK", "Spice SPK"], "type_": ["d", "f", "f", "f", "f", "f", "f", "f"]}
 }

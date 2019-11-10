@@ -1,5 +1,4 @@
-from datetime import datetime, timedelta
-
+from astropy.time import Time, TimeDelta
 import numpy as np
 
 SLT_OMEGA = 26.75
@@ -32,8 +31,7 @@ def saturn_local_time(time, x_ksm, y_ksm, z_ksm):
     float:
       saturn local time in seconds from midnight
     """
-    timestamp = np.vectorize(datetime.timestamp)
-    days_since_epoch = timestamp(time.utc.datetime) / SECS_PER_DAY
+    days_since_epoch = time.utc.unix / SECS_PER_DAY
 
     lambda_ = (
         SLT_OMEGA * np.sin((2 * np.pi * days_since_epoch / SLT_ALPHA) + SLT_PHI) - SLT_K
@@ -44,8 +42,7 @@ def saturn_local_time(time, x_ksm, y_ksm, z_ksm):
 
     phi = (np.arctan2(y_ksm, X) * 180 / np.pi) % 360
 
-    td = np.vectorize(timedelta)
-    return td(seconds=((12 + (phi * 24 / 360)) % 24) * 3600)
+    return TimeDelta(((12 + (phi * 24 / 360)) % 24) * 3600, format="sec")
 
 
 def latitude(x, y, z):

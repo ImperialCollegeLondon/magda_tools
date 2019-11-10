@@ -37,7 +37,7 @@ class TestCalculations(TestCase):
         )
 
         for t, c in zip(target_values, calculated):
-            self.assertAlmostEqual(t, c.seconds + c.microseconds / 1e6, places=3)
+            self.assertAlmostEqual(t, c.sec, places=3)
 
     def test_latitude(self):
         """Test conversion of time and positional coordinates into

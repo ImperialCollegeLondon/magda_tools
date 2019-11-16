@@ -1,21 +1,24 @@
+from typing import List
+
 import numpy as np
 from sympy.functions.elementary.trigonometric import cos
 from sympy.functions.special.polynomials import legendre
 from sympy.abc import theta, r
-from sympy import lambdify, diff
+from sympy import lambdify, diff, Mul
 
 from .calculate import distance, latitude, SATURN_RADIUS_KM
+from .data_file import DataFile
 
 
-def r_prefix(degree):
+def r_prefix(degree: int) -> Mul:
     return (degree + 1) * r ** -(degree + 2)
 
 
-def theta_prefix(degree):
-    return -r ** -(degree + 2)
+def theta_prefix(degree: int) -> Mul:
+    return -(r ** -(degree + 2))
 
 
-def phi_hat(r, theta):
+def phi_hat(r: np.ndarray, theta: np.ndarray) -> np.ndarray:
     """The field strenth of the model phi component. Always returns zero."""
     return np.zeros_like(r)
 
@@ -40,7 +43,7 @@ class BFieldModel(object):
       The symbolic representation of r_hat
     """
 
-    def __init__(self, gn0s):
+    def __init__(self, gn0s: List[float]) -> None:
         """Arguments
         ---------
         gn0s: sequence of numbers
@@ -68,10 +71,10 @@ class BFieldModel(object):
         self.phi_hat = phi_hat
 
     @property
-    def degree(self):
+    def degree(self) -> int:
         return len(self.gn0s)
 
-    def process_datafile(self, df):
+    def process_datafile(self, df: DataFile):
         """Return the three field components (r^hat, theta^hat and phi^hat respectively)
         calculated from the positions stored in the Magda DataFile ``df``."""
         xyz = df["X_KG"].data, df["Y_KG"].data, df["Z_KG"].data

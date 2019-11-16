@@ -7,6 +7,7 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime
 from string import Template
+from typing import Any, Dict
 
 import numpy as np
 from astropy.time import Time
@@ -28,7 +29,7 @@ MAGDA_TIME_FMT = "%Y %j %b %d %H:%M:%S"
 MAGDA_TIME_FMT_MS = MAGDA_TIME_FMT + ".%f"
 
 
-def command_executor(command):
+def command_executor(command: str) -> str:
     """Executes ``command`` in external process and returns stdout if successful
     otherwise raises subprocess.SubprocessError containing stderr.
     """
@@ -41,7 +42,7 @@ def command_executor(command):
     return cp.stdout.decode(sys.getfilesystemencoding()).strip()
 
 
-def bd_header(dataset):
+def bd_header(dataset: str) -> dict:
     """Blocking call of BinaryDataJoiner java code in external process to
     construct ``VirtualMagdaDataFile`` specified by ``dataset``.
     :param dataset: valid ``VirtualMagdaDataFile`` dataset name (str).
@@ -50,7 +51,7 @@ def bd_header(dataset):
 
     command = HEADER_COMMAND_TEMPLATE.substitute({"ffd_path": dataset})
     stdout = command_executor(command)
-    metadata = {}
+    metadata: Dict[str, Any] = {}
     metadata["columns"] = []
 
     for line in stdout.split("\n"):
@@ -61,22 +62,25 @@ def bd_header(dataset):
             )  # astropy time object for convenience
         elif label.startswith("column"):
             vals = value.split(",")
-            args = (
-                [int(label.replace("column", ""))]
-                + vals[:-1]
-                + [MAGDA_TYPE_CONVERTER[vals[-1]]]
+            metadata["columns"].append(
+                Column(  # type: ignore
+                    int(label.replace("column", "")),
+                    *vals[:-1],
+                    MAGDA_TYPE_CONVERTER[vals[-1]],
+                )
             )
-            metadata["columns"].append(Column(*args))
         elif label == "attrs":
-            path_metadata = re.match(MAGDA_NAME_ATTRIBUTE_REGEX, value).groupdict()
-            metadata.update(
-                {
-                    "res": path_metadata["res"] if path_metadata["res"] else "",
-                    "sensor": path_metadata["sensor"].upper(),
-                    "coord": path_metadata["coord"].upper(),
-                    "telem": path_metadata["telem"].upper(),
-                }
-            )
+            match = re.match(MAGDA_NAME_ATTRIBUTE_REGEX, value)
+            if match is not None:
+                path_metadata = match.groupdict()
+                metadata.update(
+                    {
+                        "res": path_metadata["res"] if path_metadata["res"] else "",
+                        "sensor": path_metadata["sensor"].upper(),
+                        "coord": path_metadata["coord"].upper(),
+                        "telem": path_metadata["telem"].upper(),
+                    }
+                )
         elif label in ("start", "end"):
             metadata[label] = datetime.strptime(value, MAGDA_TIME_FMT_MS)
         elif label == "n_rows":

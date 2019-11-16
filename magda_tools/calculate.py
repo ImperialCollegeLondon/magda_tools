@@ -1,18 +1,26 @@
+from typing import Union
+
 from astropy.time import Time, TimeDelta
 import numpy as np
 
-SLT_OMEGA = 26.75
-SLT_ALPHA = 10759.5
-SLT_PHI = 4.1
-SLT_K = 0.0
+# Fitted parameters for calculation of saturn local time
+SLT_OMEGA: float = 26.75
+SLT_ALPHA: float = 10759.5
+SLT_PHI: float = 4.1
+SLT_K: float = 0.0
 
-SECS_PER_DAY = 86400
+SECS_PER_DAY: int = 86400
 
 # standard value for Saturn equitorial radius
-SATURN_RADIUS_KM = 60268.0
+SATURN_RADIUS_KM: float = 60268.0
 
 
-def saturn_local_time(time, x_ksm, y_ksm, z_ksm):
+def saturn_local_time(
+    time: Time,
+    x_ksm: Union[float, np.ndarray],
+    y_ksm: Union[float, np.ndarray],
+    z_ksm: Union[float, np.ndarray],
+) -> TimeDelta:
     """For the given `time` and positions in the ksm coordinate
     system return an estimated value for Saturn local time.
 
@@ -45,7 +53,11 @@ def saturn_local_time(time, x_ksm, y_ksm, z_ksm):
     return TimeDelta(((12 + (phi * 24 / 360)) % 24) * 3600, format="sec")
 
 
-def latitude(x, y, z):
+def latitude(
+    x: Union[float, np.ndarray],
+    y: Union[float, np.ndarray],
+    z: Union[float, np.ndarray],
+) -> Union[float, np.ndarray]:
     """For the given x, y and z coordinates provided from a cartesian
     system aligned with the spin-axis of Saturn return the
     corresponding latitude in degrees. If this function is used with a
@@ -57,7 +69,12 @@ def latitude(x, y, z):
     return np.arcsin(z / dist) / np.pi * 180
 
 
-def distance(x, y, z, radius=None):
+def distance(
+    x: Union[float, np.ndarray],
+    y: Union[float, np.ndarray],
+    z: Union[float, np.ndarray],
+    radius: float = None,
+) -> Union[float, np.ndarray]:
     """For the given x, y and z coordinates calculate the distance from
     the system origin. If a value is provided for radius the distance
     will be returned as multiples of this value.

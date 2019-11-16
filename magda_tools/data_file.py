@@ -1,14 +1,15 @@
 import os
 import struct
+from typing import Any, Dict, Union
 
 import numpy as np
 from astropy.time import TimeDelta
 
-from .header_handler import bd_header
+from .header_handler import bd_header, Column
 
 
 class DataFile(object):
-    def __init__(self, file_path, header_path=None):
+    def __init__(self, file_path: str, header_path: str = None):
         """Parse a MAGDA flatfile at ``file_path``. If ``header_path`` is not
         provided it is assumed that there is a .ffh file colocated
         with the data file.
@@ -22,8 +23,11 @@ class DataFile(object):
         )
         # get information from header file
         metadata = self.parse_header(self.header_path)
-        for k, v in metadata.items():
-            setattr(self, k, v)
+        self.n_rows = metadata["nrows"]
+        self.columns = metadata["columns"]
+        self.timebase = metadata["timebase"]
+        self.coord = metadata["coord"]
+        self.sensor = metadata["sensor"]
 
         # read in actual data
         fmt = "".join([c.type_ for c in self.columns])
@@ -67,7 +71,7 @@ class DataFile(object):
             sensor_status.data = self.decode_sensor_status(sensor_status.data)
 
     @staticmethod
-    def parse_header(path):
+    def parse_header(path: str) -> Dict[str, Any]:
         """Return a dictionary of metadata items from the header file at
         ``path`` describing the contents of a datafile.
         """
@@ -77,14 +81,14 @@ class DataFile(object):
     def n_cols(self):
         return len(self.columns)
 
-    def __getitem__(self, val):
+    def __getitem__(self, val: str) -> Column:
         try:
             return [c for c in self.columns if c.name == val][0]
         except IndexError:
             raise ValueError(f"No column named {val} in datafile")
 
     @staticmethod
-    def decode_sensor_status(status):
+    def decode_sensor_status(status: Union[np.ndarray, int]) -> Union[np.ndarray, int]:
         """Decode raw sensor status information into a status code. ``status``
         can be a number of sequence of numbers.
         """

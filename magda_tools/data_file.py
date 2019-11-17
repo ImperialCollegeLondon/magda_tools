@@ -23,11 +23,15 @@ class DataFile(object):
         )
         # get information from header file
         metadata = self.parse_header(self.header_path)
-        self.n_rows = metadata["nrows"]
+        self.n_rows = metadata["n_rows"]
         self.columns = metadata["columns"]
         self.timebase = metadata["timebase"]
         self.coord = metadata["coord"]
         self.sensor = metadata["sensor"]
+        self.start = metadata["start"]
+        self.end = metadata["end"]
+        self.telem = metadata["telem"]
+        self.res = metadata["res"]
 
         # read in actual data
         fmt = "".join([c.type_ for c in self.columns])

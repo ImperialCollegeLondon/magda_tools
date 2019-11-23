@@ -167,24 +167,3 @@ class Regex(TestCase):
     def compare(self, line, target_data):
         match = COLUMN_REGEX.search(line).groupdict()
         self.assertDictEqual(match, target_data)
-
-    def test_datafiles(self):
-        # ffd = self.ffh_rel_path.replace(".ffh", ".ffd")
-        with open("/home/ccaveayl/sub_list_ffd") as f:
-            ffds = f.readlines()
-
-        for ffd in ffds:
-            print(ffd)
-            datafile = DataFile(
-                Path("/home/ccaveayl/projects/magda_data/casdata/", ffd.strip())
-            )
-
-            for c in datafile.columns:
-                self.assertEqual(len(c.data), datafile.n_rows)
-
-            self.assertEqual(datafile["TIME"], datafile.columns[0])
-            # should add below value to json metadata file
-            self.assertAlmostEqual(datafile.timebase.unix, 946727968.0, places=5)
-
-            self.assertEqual(datafile.start, datafile["TIME"].data[0].datetime)
-            self.assertEqual(datafile["TIME"].data[-1].datetime, datafile.end)

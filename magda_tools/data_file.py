@@ -1,11 +1,40 @@
+from dataclasses import dataclass
+from datetime import datetime
 import os
+import re
 import struct
 from typing import Any, Dict, Union
 
 import numpy as np
-from astropy.time import TimeDelta
+from astropy.time import Time, TimeDelta
 
-from .header_handler import bd_header, Column
+COLUMN_REGEX = re.compile(
+    r"(?P<index>[0-9]{3})\s+(?P<name>[A-Z,a-z,0-9,_,/,(,)]{1,10})(\s+)?(?P<units>[a-z,A-Z]+)"
+    r"\s+(?P<source>[a-z,A-Z,_]+(\s[a-z,A-Z,_]+)?)\s+(?P<type>[I,R,T])\s+(?P<loc>[0-9]+)"
+)
+
+MAGDA_NAME_ATTRIBUTE_REGEX = re.compile(
+    r"mrdcd_(?P<telem>hk|sd|sh)(?P<sensor>fgm|vhm|shm)(?:n|c)?"
+    r"_(?P<coord>c|krtp|kso|ksm|kg|tiis|enis|iais|j3|jmxyz|gse|gsm|rtn|sc)"
+    r"(?:_(?P<res>ssd|\d{1,2}[ms]))?"
+)
+
+MAGDA_TIME_FMT = "%Y %j %b %d %H:%M:%S"
+MAGDA_TIME_FMT_MS = MAGDA_TIME_FMT + ".%f"
+
+EPOCHS = dict(J2000=946727968, Y1958=-378691200, Y1966=-126230400)
+
+DATA_TYPES = {"T": "d", "R": "f", "I": "i"}
+
+
+@dataclass
+class Column:
+    index: int
+    name: str
+    source: str
+    units: str
+    type_: str
+    data: np.array = np.array([])
 
 
 class DataFile(object):
@@ -57,8 +86,8 @@ class DataFile(object):
 
         # ">" denotes the endian or byte significance order of the data
         data = np.array(struct.unpack(">" + (fmt * self.n_rows), b))
-        for c in self.columns:
-            c.data = data[c.index :: self.n_cols]
+        for i, c in enumerate(self.columns):
+            c.data = data[i :: self.n_cols]
 
         # convert times into objects and rename column for consistency
         # across different header files
@@ -79,7 +108,55 @@ class DataFile(object):
         """Return a dictionary of metadata items from the header file at
         ``path`` describing the contents of a datafile.
         """
-        return bd_header(path)
+        metadata = {"columns": []}
+
+        lines = []
+        with open(path) as f:
+            while True:
+                line = f.read(72)
+                if line:
+                    lines.append(line)
+                else:
+                    break
+
+        for line in lines:
+            match = COLUMN_REGEX.search(line)
+            if match:
+                groups = match.groupdict()
+                column = Column(
+                    int(groups["index"].lstrip("0")) - 1,
+                    groups["name"],
+                    groups["source"],
+                    groups["units"],
+                    DATA_TYPES[groups["type"]],
+                )
+                metadata["columns"].append(column)
+            elif line.startswith(("LAST TIME", "FIRST TIME")):
+                value = line.split(" = ")[1].strip()
+                value = " ".join(value.split())
+                if value.startswith("9"):
+                    value = "19" + value
+                key = "end" if line.startswith("LAST TIME") else "start"
+                metadata[key] = datetime.strptime(value, MAGDA_TIME_FMT_MS)
+            elif line.startswith("NROWS"):
+                metadata["n_rows"] = int(line.split(" = ")[1].strip())
+            elif line.startswith("EPOCH"):
+                value = int(EPOCHS[line.split(" = ")[1].strip()])
+                metadata["timebase"] = Time(value, format="unix", scale="utc")
+
+        match = MAGDA_NAME_ATTRIBUTE_REGEX.search(str(path))
+        if match is not None:
+            path_metadata = match.groupdict()
+            metadata.update(
+                {
+                    "res": path_metadata["res"] if path_metadata["res"] else "",
+                    "sensor": path_metadata["sensor"].upper(),
+                    "coord": path_metadata["coord"].upper(),
+                    "telem": path_metadata["telem"].upper(),
+                }
+            )
+
+        return metadata
 
     @property
     def n_cols(self):

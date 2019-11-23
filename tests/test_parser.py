@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest import TestCase
 
 from magda_tools import MAGDA_TIME_FMT_MS, DataFile
+from magda_tools.data_file import COLUMN_REGEX
 
 
 DATA_ROOT = Path(__file__).parent.absolute() / "data"
@@ -112,3 +113,78 @@ class TestDataParser(TestCase):
         status_data = DataFile.decode_sensor_status(raw_data)
         for s, t in zip(status_data, target_status_data):
             self.assertEqual(s, t)
+
+
+class Regex(TestCase):
+    def test_line1(self):
+        target_data = dict(
+            index="001",
+            name="TIME_TAI",
+            units="SEC",
+            source="CA_HK_RG_FGM",
+            type="T",
+            loc="0",
+        )
+        test_line = "001 TIME_TAI  SEC       CA_HK_RG_FGM              T        0"
+        self.compare(test_line, target_data)
+
+    def test_line2(self):
+        target_data = dict(
+            index="006",
+            name="X_KG",
+            units="km",
+            source="Spice SPK",
+            type="R",
+            loc="24",
+        )
+        test_line = "006 X_KG      km        Spice SPK                 R       24"
+        self.compare(test_line, target_data)
+
+    def test_line3(self):
+        target_data = dict(
+            index="001",
+            name="SCLK(1958)",
+            units="COUNT",
+            source="CA_SD_HK_FGM",
+            type="T",
+            loc="0",
+        )
+        test_line = "001 SCLK(1958)COUNT     CA_SD_HK_FGM              T        0"
+        self.compare(test_line, target_data)
+
+    def test_line4(self):
+        target_data = dict(
+            index="005",
+            name="MAGStatus",
+            units="b",
+            source="CA_SD_HK_FGM",
+            type="I",
+            loc="20",
+        )
+        test_line = "005 MAGStatus b         CA_SD_HK_FGM              I       20"
+        self.compare(test_line, target_data)
+
+    def compare(self, line, target_data):
+        match = COLUMN_REGEX.search(line).groupdict()
+        self.assertDictEqual(match, target_data)
+
+    def test_datafiles(self):
+        # ffd = self.ffh_rel_path.replace(".ffh", ".ffd")
+        with open("/home/ccaveayl/sub_list_ffd") as f:
+            ffds = f.readlines()
+
+        for ffd in ffds:
+            print(ffd)
+            datafile = DataFile(
+                Path("/home/ccaveayl/projects/magda_data/casdata/", ffd.strip())
+            )
+
+            for c in datafile.columns:
+                self.assertEqual(len(c.data), datafile.n_rows)
+
+            self.assertEqual(datafile["TIME"], datafile.columns[0])
+            # should add below value to json metadata file
+            self.assertAlmostEqual(datafile.timebase.unix, 946727968.0, places=5)
+
+            self.assertEqual(datafile.start, datafile["TIME"].data[0].datetime)
+            self.assertEqual(datafile["TIME"].data[-1].datetime, datafile.end)

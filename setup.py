@@ -8,10 +8,9 @@ setup(
     url="https://github.com/ImperialCollege/magda_tools",
     author="Research Software Engineering Group, Imperial College",
     author_email="",
-    packages=["magda_tools", "magda_tools.header_handler"],
+    packages=["magda_tools"],
     python_requires=">=3.6",
     install_requires=["astropy", "numpy", "sympy"],
     tests_require=["pytz"],
     project_urls={"Source": "https://github.com/ImperialCollege/magda_tools"},
-    package_data={"magda_tools.header_handler": ["HeaderFileParser.jar"]},
 )

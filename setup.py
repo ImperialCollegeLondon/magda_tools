@@ -18,7 +18,7 @@ setup(
     author="Research Software Engineering Group, Imperial College",
     author_email="",
     packages=["magda_tools"],
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     install_requires=requirements,
     tests_require=requirements_dev,
     project_urls={"Source": "https://github.com/ImperialCollegeLondon/magda_tools"},

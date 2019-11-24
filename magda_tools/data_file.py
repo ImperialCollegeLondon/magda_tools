@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from datetime import datetime
 import os
 import re
-import struct
 from typing import Any, Dict, Union
 
 import numpy as np
@@ -63,20 +62,13 @@ class DataFile(object):
         self.res = metadata["res"]
 
         # read in actual data
-        fmt = "".join([c.type_ for c in self.columns])
-        row_size = struct.calcsize(fmt)
+        dt = np.dtype([(c.name, ">" + c.type_) for c in self.columns])
         with open(self.file_path, "rb") as f:
-            b = f.read()
+            data = np.fromfile(f, dt)
 
         # some data files contain fewer lines than their
-        # headers claim so check the actualy size of the bytes
-        # object we get
-        actual_n_rows = len(b) // row_size
-        if len(b) % row_size:
-            raise IOError(
-                "Data file does not contain an integer number of rows according"
-                " to the expected row length"
-            )
+        # headers claim so check the actual array size
+        actual_n_rows = len(data)
         if actual_n_rows != self.n_rows:
             print(
                 f"Warning: Datafile {file_path} contains a different number "
@@ -84,10 +76,8 @@ class DataFile(object):
             )
             self.n_rows = actual_n_rows
 
-        # ">" denotes the endian or byte significance order of the data
-        data = np.array(struct.unpack(">" + (fmt * self.n_rows), b))
-        for i, c in enumerate(self.columns):
-            c.data = data[i :: self.n_cols]
+        for c in self.columns:
+            c.data = data[c.name]
 
         # convert times into objects and rename column for consistency
         # across different header files

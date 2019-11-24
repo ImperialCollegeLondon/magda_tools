@@ -98,7 +98,7 @@ class DataFile(object):
         """Return a dictionary of metadata items from the header file at
         ``path`` describing the contents of a datafile.
         """
-        metadata = {"columns": []}
+        metadata: Dict[str, Any] = {"columns": []}
 
         lines = []
         with open(path) as f:
@@ -131,8 +131,8 @@ class DataFile(object):
             elif line.startswith("NROWS"):
                 metadata["n_rows"] = int(line.split(" = ")[1].strip())
             elif line.startswith("EPOCH"):
-                value = int(EPOCHS[line.split(" = ")[1].strip()])
-                metadata["timebase"] = Time(value, format="unix", scale="utc")
+                timebase = int(EPOCHS[line.split(" = ")[1].strip()])
+                metadata["timebase"] = Time(timebase, format="unix", scale="utc")
 
         match = MAGDA_NAME_ATTRIBUTE_REGEX.search(str(path))
         if match is not None:

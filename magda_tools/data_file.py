@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 import os
 import re
@@ -33,7 +33,7 @@ class Column:
     source: str
     units: str
     type_: str
-    data: np.array = np.array([])
+    data: np.array = field(default_factory=lambda: np.array([]))
 
 
 class DataFile(object):
